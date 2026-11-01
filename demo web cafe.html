@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crimson Hearth | Craft Coffee & Kitchen</title>
+  <meta name="description" content="Crimson Hearth: a premium cafe for craft coffee, fresh food, and a warm place to work or unwind." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            char: { 950: '#0e0c0b', 900: '#151211', 800: '#1d1917', 700: '#2a2421' },
+            espresso: { 500: '#6b4a3a', 400: '#8a6350', 300: '#b08b74' },
+            crimson: { 400: '#ef4a5e', 500: '#dc2f47', 600: '#b8182f', 700: '#8f1024' },
+            cream: '#f4ebe1'
+          },
+          fontFamily: {
+            display: ['Fraunces', 'serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body { background: #0e0c0b; color: #f4ebe1; }
+    .hero-bg {
+      background:
+        radial-gradient(60% 50% at 75% 20%, rgba(220,47,71,.28), transparent 70%),
+        radial-gradient(50% 50% at 10% 90%, rgba(107,74,58,.35), transparent 70%),
+        linear-gradient(180deg, #151211 0%, #0e0c0b 100%);
+    }
+    .grain::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .06;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+    .map-grid {
+      background-image:
+        linear-gradient(rgba(244,235,225,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(244,235,225,.06) 1px, transparent 1px);
+      background-size: 36px 36px;
+    }
+    @keyframes pulseRing { 0% { transform: scale(.6); opacity: .8 } 100% { transform: scale(2.2); opacity: 0 } }
+    .pulse-ring { animation: pulseRing 2s ease-out infinite; }
+    ::-webkit-scrollbar { width: 10px }
+    ::-webkit-scrollbar-track { background: #0e0c0b }
+    ::-webkit-scrollbar-thumb { background: #2a2421; border-radius: 8px }
+    :focus-visible { outline: 2px solid #ef4a5e; outline-offset: 3px; }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+      html { scroll-behavior: auto; }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+
+<body class="font-sans antialiased">
+
+  <!-- NAVBAR -->
+  <header id="navbar" class="fixed top-0 inset-x-0 z-40 transition-all duration-300">
+    <nav class="max-w-7xl mx-auto px-5 sm:px-8 h-20 flex items-center justify-between">
+      <a href="#home" class="flex items-center gap-2 font-display text-xl font-bold tracking-tight">
+        <span class="inline-block w-3 h-3 rounded-full bg-crimson-500 shadow-[0_0_16px_#dc2f47]"></span>
+        Crimson Hearth
+      </a>
+
+      <ul class="hidden md:flex items-center gap-8 text-sm text-cream/80">
+        <li><a href="#menu" class="hover:text-crimson-400 transition-colors">Menu</a></li>
+        <li><a href="#location" class="hover:text-crimson-400 transition-colors">Location</a></li>
+        <li><a href="#workspace" class="hover:text-crimson-400 transition-colors">Work Here</a></li>
+      </ul>
+
+      <div class="flex items-center gap-3">
+        <button data-open-modal class="hidden sm:inline-flex px-4 py-2 text-sm rounded-full border border-cream/20 hover:border-crimson-500 hover:text-crimson-400 transition-colors">
+          Reserve a Table
+        </button>
+        <button id="cartToggle" aria-label="Open cart" class="relative p-2.5 rounded-full bg-crimson-600 hover:bg-crimson-500 transition-colors hover:scale-105 active:scale-95">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4h2l2.4 11.2a1 1 0 001 .8h8.9a1 1 0 001-.76L20 8H6"/><circle cx="9" cy="20" r="1.2"/><circle cx="17" cy="20" r="1.2"/></svg>
+          <span id="cartBadge" class="absolute -top-1 -right-1 min-w-[1.25rem] h-5 px-1 rounded-full bg-cream text-char-950 text-xs font-semibold flex items-center justify-center scale-0 transition-transform">0</span>
+        </button>
+        <button id="menuToggle" aria-label="Toggle navigation" class="md:hidden p-2">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </nav>
+
+    <div id="mobileNav" class="hidden md:hidden bg-char-900/95 backdrop-blur border-t border-white/5 px-5 py-4 space-y-3 text-cream/90">
+      <a href="#menu" class="block py-1">Menu</a>
+      <a href="#location" class="block py-1">Location</a>
+      <a href="#workspace" class="block py-1">Work Here</a>
+      <button data-open-modal class="w-full mt-2 px-4 py-2.5 rounded-full bg-crimson-600">Reserve a Table</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section id="home" class="hero-bg grain relative min-h-screen flex items-center overflow-hidden">
+      <div class="max-w-7xl mx-auto px-5 sm:px-8 pt-28 pb-20 grid lg:grid-cols-2 gap-12 items-center w-full">
+        <div class="reveal">
+          <p class="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-crimson-400 mb-6">
+            <span class="w-8 h-px bg-crimson-400"></span> Craft Coffee &amp; Kitchen
+          </p>
+          <h1 class="font-display font-black text-5xl sm:text-6xl lg:text-7xl leading-[1.02] tracking-tight">
+            Where every cup <br />
+            <span class="text-crimson-500 italic">burns</span> a little brighter.
+          </h1>
+          <p class="mt-6 text-lg text-cream/70 max-w-xl leading-relaxed">
+            Small-batch beans, slow-roasted and pulled with patience. Crimson Hearth is your warm corner for honest coffee, fresh-baked comfort, and unhurried mornings.
+          </p>
+          <div class="mt-10 flex flex-wrap gap-4">
+            <a href="#menu" class="group px-7 py-3.5 rounded-full bg-crimson-600 hover:bg-crimson-500 font-medium shadow-lg shadow-crimson-700/30 transition-all hover:-translate-y-0.5">
+              View Menu <span class="inline-block transition-transform group-hover:translate-x-1">→</span>
+            </a>
+            <a href="#location" class="px-7 py-3.5 rounded-full border border-cream/25 hover:border-cream hover:bg-cream/5 font-medium transition-all hover:-translate-y-0.5">
+              Find Us
+            </a>
+          </div>
+          <dl class="mt-14 flex gap-10 text-sm">
+            <div><dt class="text-cream/50">Roasted</dt><dd class="font-display text-2xl">In-house</dd></div>
+            <div><dt class="text-cream/50">Open daily</dt><dd class="font-display text-2xl">7am – 10pm</dd></div>
+          </dl>
+        </div>
+
+        <!-- Decorative cup -->
+        <div class="reveal relative flex justify-center" style="transition-delay:.15s">
+          <div class="absolute w-80 h-80 sm:w-[26rem] sm:h-[26rem] rounded-full bg-crimson-600/20 blur-3xl"></div>
+          <svg viewBox="0 0 400 400" class="relative w-72 sm:w-96 drop-shadow-2xl" aria-hidden="true">
+            <defs>
+              <linearGradient id="cup" x1="0" x2="1"><stop offset="0" stop-color="#2a2421"/><stop offset="1" stop-color="#151211"/></linearGradient>
+              <radialGradient id="coffee" cx=".5" cy=".5" r=".6"><stop offset="0" stop-color="#8a6350"/><stop offset="1" stop-color="#3b2519"/></radialGradient>
+            </defs>
+            <ellipse cx="200" cy="330" rx="150" ry="22" fill="#000" opacity=".4"/>
+            <path d="M90 150h220v90a110 90 0 01-220 0z" fill="url(#cup)" stroke="#dc2f47" stroke-width="2"/>
+            <path d="M310 175c50-5 55 60 0 65" fill="none" stroke="#dc2f47" stroke-width="10" stroke-linecap="round"/>
+            <ellipse cx="200" cy="150" rx="110" ry="28" fill="#1d1917" stroke="#dc2f47" stroke-width="2"/>
+            <ellipse cx="200" cy="152" rx="96" ry="22" fill="url(#coffee)"/>
+            <path d="M200 140c-14 6-14 14 0 18 14-4 14-12 0-18z" fill="#f4ebe1" opacity=".85"/>
+            <path d="M160 100c-12-20 12-30 0-50M200 90c-12-24 12-36 0-62M240 100c-12-20 12-30 0-50" fill="none" stroke="#f4ebe1" stroke-opacity=".35" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- MENU -->
+    <section id="menu" class="py-24 bg-char-900">
+      <div class="max-w-7xl mx-auto px-5 sm:px-8">
+        <div class="text-center max-w-2xl mx-auto reveal">
+          <p class="text-xs uppercase tracking-[0.25em] text-crimson-400">Our Menu</p>
+          <h2 class="font-display text-4xl sm:text-5xl font-bold mt-3">Crafted slowly. Served warm.</h2>
+          <p class="text-cream/60 mt-4">Add anything to your cart for pickup, or just come in and pick a seat by the glow.</p>
+        </div>
+
+        <div class="mt-14 grid lg:grid-cols-2 gap-8">
+          <!-- Coffees -->
+          <div class="reveal rounded-3xl bg-char-800 border border-white/5 p-7 sm:p-9">
+            <div class="flex items-center gap-3 mb-6">
+              <span class="w-10 h-10 rounded-full bg-crimson-600/20 text-crimson-400 flex items-center justify-center">☕</span>
+              <h3 class="font-display text-2xl font-bold">Handcrafted Coffees</h3>
+            </div>
+            <ul class="divide-y divide-white/5" id="coffeeList"></ul>
+          </div>
+
+          <!-- Food -->
+          <div class="reveal rounded-3xl bg-char-800 border border-white/5 p-7 sm:p-9" style="transition-delay:.1s">
+            <div class="flex items-center gap-3 mb-6">
+              <span class="w-10 h-10 rounded-full bg-crimson-600/20 text-crimson-400 flex items-center justify-center">🥐</span>
+              <h3 class="font-display text-2xl font-bold">From the Kitchen</h3>
+            </div>
+            <ul class="divide-y divide-white/5" id="foodList"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOCATION -->
+    <section id="location" class="py-24 bg-char-950">
+      <div class="max-w-7xl mx-auto px-5 sm:px-8 grid lg:grid-cols-2 gap-12 items-center">
+        <div class="reveal">
+          <p class="text-xs uppercase tracking-[0.25em] text-crimson-400">Find Us</p>
+          <h2 class="font-display text-4xl sm:text-5xl font-bold mt-3 leading-tight">A corner worth the detour.</h2>
+          <p class="text-cream/65 mt-5 leading-relaxed">
+            Tucked at the meeting point of the old market street and the riverside promenade, Crimson Hearth sits exactly where the city slows down.
+          </p>
+
+          <div class="mt-8 grid sm:grid-cols-3 gap-4">
+            <div class="p-5 rounded-2xl bg-char-800 border border-white/5 hover:border-crimson-600/50 transition-colors hover:-translate-y-1 duration-300">
+              <div class="text-2xl">🚶</div>
+              <h3 class="font-semibold mt-3">Easy Access</h3>
+              <p class="text-sm text-cream/60 mt-1">Steps from the transit stop with constant foot traffic.</p>
+            </div>
+            <div class="p-5 rounded-2xl bg-char-800 border border-white/5 hover:border-crimson-600/50 transition-colors hover:-translate-y-1 duration-300">
+              <div class="text-2xl">🌅</div>
+              <h3 class="font-semibold mt-3">Scenic Views</h3>
+              <p class="text-sm text-cream/60 mt-1">Floor-to-ceiling windows facing the water at golden hour.</p>
+            </div>
+            <div class="p-5 rounded-2xl bg-char-800 border border-white/5 hover:border-crimson-600/50 transition-colors hover:-translate-y-1 duration-300">
+              <div class="text-2xl">🌿</div>
+              <h3 class="font-semibold mt-3">Cozy Patio</h3>
+              <p class="text-sm text-cream/60 mt-1">Heated outdoor seating wrapped in greenery.</p>
+            </div>
+          </div>
+
+          <address class="not-italic mt-8 text-cream/75 space-y-1">
+            <p class="font-medium text-cream">12 Ember Lane, Old Market District</p>
+            <p>Open daily · 7:00 AM – 10:00 PM</p>
+            <p>hello@crimsonhearth.example · (555) 013-2468</p>
+          </address>
+        </div>
+
+        <!-- Map placeholder -->
+        <div class="reveal relative aspect-[4/3] rounded-3xl overflow-hidden border border-white/10 bg-char-800 map-grid" style="transition-delay:.1s">
+          <svg class="absolute inset-0 w-full h-full" viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M-10 220 C80 180 120 250 220 200 S360 150 410 190" fill="none" stroke="#6b4a3a" stroke-opacity=".6" stroke-width="22"/>
+            <path d="M60 -10 L130 310" stroke="#f4ebe1" stroke-opacity=".12" stroke-width="10"/>
+            <path d="M-10 90 L410 60" stroke="#f4ebe1" stroke-opacity=".12" stroke-width="10"/>
+            <path d="M260 -10 L300 310" stroke="#f4ebe1" stroke-opacity=".08" stroke-width="6"/>
+          </svg>
+          <div class="absolute left-[56%] top-[42%] -translate-x-1/2 -translate-y-1/2">
+            <span class="absolute inset-0 rounded-full bg-crimson-500/50 pulse-ring"></span>
+            <span class="relative block w-5 h-5 rounded-full bg-crimson-500 border-2 border-cream shadow-[0_0_24px_#dc2f47]"></span>
+          </div>
+          <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-char-950/80 backdrop-blur border border-white/10 text-sm">
+            <span>📍 Crimson Hearth · Ember Lane</span>
+            <span class="text-cream/50 hidden sm:inline">Embed your map here</span>
+          </div>
+          <!-- Replace this div's content with: <iframe src="YOUR_GOOGLE_MAPS_EMBED_URL" class="absolute inset-0 w-full h-full" loading="lazy"></iframe> -->
+        </div>
+      </div>
+    </section>
+
+    <!-- WIFI / REMOTE WORK -->
+    <section id="workspace" class="py-24 bg-char-900">
+      <div class="max-w-7xl mx-auto px-5 sm:px-8">
+        <div class="reveal relative overflow-hidden rounded-[2rem] border border-crimson-700/40 bg-gradient-to-br from-char-800 via-char-800 to-crimson-700/20 p-8 sm:p-12">
+          <div class="absolute -right-20 -top-20 w-72 h-72 rounded-full bg-crimson-600/20 blur-3xl"></div>
+          <div class="relative grid lg:grid-cols-[1.2fr_1fr] gap-10 items-center">
+            <div>
+              <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-crimson-600/20 border border-crimson-500/40 text-crimson-400 text-xs font-medium uppercase tracking-widest">
+                <span class="w-2 h-2 rounded-full bg-crimson-400 animate-pulse"></span> Remote Work Friendly
+              </span>
+              <h2 class="font-display text-3xl sm:text-4xl font-bold mt-5">Your office, with better coffee.</h2>
+              <p class="text-cream/65 mt-4 max-w-lg">Settle in for the day. We built the space for deep work, long calls, and one more refill.</p>
+            </div>
+            <div class="grid grid-cols-3 gap-3 text-center">
+              <div class="p-4 rounded-2xl bg-char-950/60 border border-white/5 hover:border-crimson-500/50 transition-colors">
+                <div class="text-2xl">📶</div>
+                <p class="font-display text-xl mt-2">1 Gbps</p>
+                <p class="text-xs text-cream/55">Fibre Wi-Fi</p>
+              </div>
+              <div class="p-4 rounded-2xl bg-char-950/60 border border-white/5 hover:border-crimson-500/50 transition-colors">
+                <div class="text-2xl">🔌</div>
+                <p class="font-display text-xl mt-2">Every</p>
+                <p class="text-xs text-cream/55">Table Outlet</p>
+              </div>
+              <div class="p-4 rounded-2xl bg-char-950/60 border border-white/5 hover:border-crimson-500/50 transition-colors">
+                <div class="text-2xl">🎧</div>
+                <p class="font-display text-xl mt-2">Quiet</p>
+                <p class="text-xs text-cream/55">Focus Zone</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-char-950 border-t border-white/5 py-10">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-cream/50">
+      <p class="font-display text-cream text-lg">Crimson Hearth</p>
+      <p>© <span id="year"></span> Crimson Hearth Cafe. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- CART DRAWER -->
+  <div id="cartOverlay" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"></div>
+  <aside id="cartDrawer" class="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-char-900 border-l border-white/10 shadow-2xl translate-x-full transition-transform duration-500 ease-out flex flex-col" aria-label="Shopping cart" aria-hidden="true">
+    <div class="flex items-center justify-between px-6 py-5 border-b border-white/5">
+      <div>
+        <h2 class="font-display text-2xl font-bold">Order for Pickup</h2>
+        <p class="text-xs text-cream/50">Ready in about 10–15 minutes</p>
+      </div>
+      <button id="cartClose" aria-label="Close cart" class="p-2 rounded-full hover:bg-white/10 transition-colors text-xl leading-none">✕</button>
+    </div>
+    <div id="cartItems" class="flex-1 overflow-y-auto px-6 py-4 space-y-4"></div>
+    <div class="px-6 py-5 border-t border-white/5 space-y-3">
+      <div class="flex justify-between text-cream/70 text-sm"><span>Subtotal</span><span id="cartSubtotal">$0.00</span></div>
+      <div class="flex justify-between text-cream/70 text-sm"><span>Tax (8%)</span><span id="cartTax">$0.00</span></div>
+      <div class="flex justify-between font-display text-xl"><span>Total</span><span id="cartTotal">$0.00</span></div>
+      <button id="checkoutBtn" class="w-full py-3.5 rounded-full bg-crimson-600 hover:bg-crimson-500 font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed">Place Pickup Order</button>
+    </div>
+  </aside>
+
+  <!-- RESERVATION MODAL -->
+  <div id="reserveModal" class="fixed inset-0 z-[60] hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="reserveTitle">
+    <div id="modalBackdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <div id="modalPanel" class="relative w-full max-w-lg rounded-3xl bg-char-900 border border-white/10 p-7 sm:p-9 shadow-2xl scale-95 opacity-0 transition-all duration-300">
+      <button id="modalClose" aria-label="Close" class="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors">✕</button>
+
+      <form id="reserveForm" class="space-y-4">
+        <div>
+          <h2 id="reserveTitle" class="font-display text-3xl font-bold">Reserve a Table</h2>
+          <p class="text-sm text-cream/55 mt-1">We'll hold your spot for 15 minutes past your time.</p>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <label class="block text-sm">Name
+            <input required name="name" type="text" class="mt-1 w-full px-4 py-2.5 rounded-xl bg-char-800 border border-white/10 focus:border-crimson-500 focus:outline-none" />
+          </label>
+          <label class="block text-sm">Phone / Email
+            <input required name="contact" type="text" class="mt-1 w-full px-4 py-2.5 rounded-xl bg-char-800 border border-white/10 focus:border-crimson-500 focus:outline-none" />
+          </label>
+          <label class="block text-sm">Date
+            <input required id="resDate" name="date" type="date" class="mt-1 w-full px-4 py-2.5 rounded-xl bg-char-800 border border-white/10 focus:border-crimson-500 focus:outline-none [color-scheme:dark]" />
+          </label>
+          <label class="block text-sm">Time
+            <input required name="time" type="time" min="07:00" max="21:30" value="10:00" class="mt-1 w-full px-4 py-2.5 rounded-xl bg-char-800 border border-white/10 focus:border-crimson-500 focus:outline-none [color-scheme:dark]" />
+          </label>
+          <label class="block text-sm">Guests
+            <select name="guests" class="mt-1 w-full px-4 py-2.5 rounded-xl bg-char-800 border border-white/10 focus:border-crimson-500 focus:outline-none">
+              <option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7+</option>
+            </select>
+          </label>
+          <label class="block text-sm">Seating
+            <select name="seating" class="mt-1 w-full px-4 py-2.5 rounded-xl bg-char-800 border border-white/10 focus:border-crimson-500 focus:outline-none">
+              <option>Indoor window</option><option>Patio</option><option>Work table (outlet)</option>
+            </select>
+          </label>
+        </div>
+        <button type="submit" class="w-full py-3.5 rounded-full bg-crimson-600 hover:bg-crimson-500 font-medium transition-colors">Confirm Reservation</button>
+      </form>
+
+      <div id="reserveSuccess" class="hidden text-center py-8">
+        <div class="mx-auto w-16 h-16 rounded-full bg-crimson-600/20 text-crimson-400 flex items-center justify-center text-3xl">✓</div>
+        <h2 class="font-display text-3xl font-bold mt-5">You're all set!</h2>
+        <p id="reserveSummary" class="text-cream/65 mt-2"></p>
+        <button id="successClose" class="mt-6 px-6 py-3 rounded-full border border-cream/25 hover:bg-cream/5 transition-colors">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] px-5 py-3 rounded-full bg-cream text-char-950 text-sm font-medium shadow-xl translate-y-24 opacity-0 transition-all duration-300"></div>
+
+  <script>
+    // ---------- DATA ----------
+    const MENU = {
+      coffee: [
+        { id: 'c1', name: 'Espresso', desc: 'Double shot of our house blend: dark chocolate, toasted hazelnut, syrupy body.', price: 3.5 },
+        { id: 'c2', name: 'Crimson Macchiato', desc: 'Espresso marked with velvet milk, wild cherry reduction and a pinch of sea salt.', price: 5.25, signature: true },
+        { id: 'c3', name: 'Cold Brew', desc: '18-hour steeped single origin, served over clear ice. Smooth and low acid.', price: 4.75 }
+      ],
+      food: [
+        { id: 'f1', name: 'Avocado Sourdough Toast', desc: 'Smashed avocado, chili crisp, lemon, seeds and a soft-poached egg on house sourdough.', price: 9.5 },
+        { id: 'f2', name: 'Artisan Pastries', desc: 'Butter croissants, cardamom knots and seasonal fruit danishes, baked every morning.', price: 4.25 },
+        { id: 'f3', name: 'Fresh Breakfast Wrap', desc: 'Scrambled eggs, roasted peppers, sharp cheddar and herb aioli in a griddled wrap.', price: 8.75 }
+      ]
+    };
+    const TAX = 0.08;
+    const money = n => '$' + n.toFixed(2);
+    const $ = s => document.querySelector(s);
+    const $$ = s => document.querySelectorAll(s);
+
+    // ---------- RENDER MENU ----------
+    function renderMenu(list, target) {
+      $(target).innerHTML = list.map(i => `
+        <li class="group py-5 flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <h4 class="font-semibold text-lg flex items-center gap-2 flex-wrap">
+              ${i.name}
+              ${i.signature ? '<span class="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full bg-crimson-600/20 text-crimson-400">Signature</span>' : ''}
+            </h4>
+            <p class="text-sm text-cream/55 mt-1 leading-relaxed">${i.desc}</p>
+          </div>
+          <div class="flex flex-col items-end gap-2 shrink-0">
+            <span class="font-display text-lg text-crimson-400">${money(i.price)}</span>
+            <button data-add="${i.id}" class="px-3 py-1.5 text-xs rounded-full border border-cream/20 hover:bg-crimson-600 hover:border-crimson-600 transition-all active:scale-95">+ Add</button>
+          </div>
+        </li>`).join('');
+    }
+    renderMenu(MENU.coffee, '#coffeeList');
+    renderMenu(MENU.food, '#foodList');
+    const ALL = [...MENU.coffee, ...MENU.food];
+
+    // ---------- CART ----------
+    let cart = {};
+    try { cart = JSON.parse(localStorage.getItem('ch_cart')) || {}; } catch (e) { cart = {}; }
+
+    const drawer = $('#cartDrawer'), overlay = $('#cartOverlay');
+    function openCart() {
+      drawer.classList.remove('translate-x-full');
+      overlay.classList.remove('opacity-0', 'pointer-events-none');
+      drawer.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeCart() {
+      drawer.classList.add('translate-x-full');
+      overlay.classList.add('opacity-0', 'pointer-events-none');
+      drawer.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+    function saveCart() { try { localStorage.setItem('ch_cart', JSON.stringify(cart)); } catch (e) {} }
+
+    function renderCart() {
+      const entries = Object.entries(cart).filter(([, q]) => q > 0);
+      const count = entries.reduce((s, [, q]) => s + q, 0);
+      const badge = $('#cartBadge');
+      badge.textContent = count;
+      badge.classList.toggle('scale-0', count === 0);
+
+      const box = $('#cartItems');
+      if (!entries.length) {
+        box.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-center text-cream/50 py-20">
+          <div class="text-5xl mb-3">☕</div><p>Your cart is empty.</p><p class="text-sm">Add something warm from the menu.</p></div>`;
+      } else {
+        box.innerHTML = entries.map(([id, q]) => {
+          const it = ALL.find(x => x.id === id);
+          return `<div class="flex items-center justify-between gap-3 p-4 rounded-2xl bg-char-800 border border-white/5">
+            <div class="min-w-0"><p class="font-medium truncate">${it.name}</p><p class="text-sm text-cream/50">${money(it.price)} each</p></div>
+            <div class="flex items-center gap-2">
+              <button data-dec="${id}" class="w-8 h-8 rounded-full border border-white/15 hover:bg-white/10" aria-label="Decrease">−</button>
+              <span class="w-5 text-center">${q}</span>
+              <button data-inc="${id}" class="w-8 h-8 rounded-full border border-white/15 hover:bg-white/10" aria-label="Increase">+</button>
+            </div>
+          </div>`;
+        }).join('');
+      }
+      const sub = entries.reduce((s, [id, q]) => s + ALL.find(x => x.id === id).price * q, 0);
+      $('#cartSubtotal').textContent = money(sub);
+      $('#cartTax').textContent = money(sub * TAX);
+      $('#cartTotal').textContent = money(sub * (1 + TAX));
+      $('#checkoutBtn').disabled = count === 0;
+      saveCart();
+    }
+
+    function toast(msg) {
+      const t = $('#toast');
+      t.textContent = msg;
+      t.classList.remove('translate-y-24', 'opacity-0');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => t.classList.add('translate-y-24', 'opacity-0'), 2200);
+    }
+
+    document.addEventListener('click', e => {
+      const add = e.target.closest('[data-add]');
+      const inc = e.target.closest('[data-inc]');
+      const dec = e.target.closest('[data-dec]');
+      if (add) {
+        const id = add.dataset.add;
+        cart[id] = (cart[id] || 0) + 1;
+        renderCart();
+        toast(`${ALL.find(x => x.id === id).name} added to cart`);
+      } else if (inc) {
+        cart[inc.dataset.inc]++; renderCart();
+      } else if (dec) {
+        const id = dec.dataset.dec;
+        cart[id] = Math.max(0, (cart[id] || 0) - 1);
+        if (!cart[id]) delete cart[id];
+        renderCart();
+      }
+    });
+
+    $('#cartToggle').addEventListener('click', openCart);
+    $('#cartClose').addEventListener('click', closeCart);
+    overlay.addEventListener('click', closeCart);
+    $('#checkoutBtn').addEventListener('click', () => {
+      cart = {}; renderCart(); closeCart();
+      toast('Order placed! We\'ll have it ready for pickup ☕');
+    });
+    renderCart();
+
+    // ---------- RESERVATION MODAL ----------
+    const modal = $('#reserveModal'), panel = $('#modalPanel');
+    function openModal() {
+      $('#reserveForm').classList.remove('hidden');
+      $('#reserveSuccess').classList.add('hidden');
+      modal.classList.remove('hidden'); modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(() => panel.classList.remove('scale-95', 'opacity-0'));
+      setTimeout(() => $('#reserveForm input[name="name"]').focus(), 200);
+    }
+    function closeModal() {
+      panel.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; }, 250);
+    }
+    $$('[data-open-modal]').forEach(b => b.addEventListener('click', () => { $('#mobileNav').classList.add('hidden'); openModal(); }));
+    $('#modalClose').addEventListener('click', closeModal);
+    $('#modalBackdrop').addEventListener('click', closeModal);
+    $('#successClose').addEventListener('click', closeModal);
+
+    $('#resDate').min = new Date().toISOString().split('T')[0];
+    $('#reserveForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const d = Object.fromEntries(new FormData(e.target));
+      $('#reserveSummary').textContent = `${d.name}, table for ${d.guests} (${d.seating}) on ${d.date} at ${d.time}.`;
+      $('#reserveForm').classList.add('hidden');
+      $('#reserveSuccess').classList.remove('hidden');
+      e.target.reset();
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { closeCart(); if (!modal.classList.contains('hidden')) closeModal(); }
+    });
+
+    // ---------- NAV ----------
+    $('#menuToggle').addEventListener('click', () => $('#mobileNav').classList.toggle('hidden'));
+    $$('#mobileNav a').forEach(a => a.addEventListener('click', () => $('#mobileNav').classList.add('hidden')));
+    const nav = $('#navbar');
+    const onScroll = () => nav.classList.toggle('bg-char-950/85', window.scrollY > 30) ||
+                           nav.classList.toggle('backdrop-blur-md', window.scrollY > 30);
+    window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+    // ---------- REVEAL ON SCROLL ----------
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('visible'); io.unobserve(en.target); } });
+    }, { threshold: 0.12 });
+    $$('.reveal').forEach(el => io.observe(el));
+
+    $('#year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
